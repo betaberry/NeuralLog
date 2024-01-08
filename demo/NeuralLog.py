@@ -13,7 +13,7 @@ import numpy as np
 from tensorflow.keras.utils import Sequence
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from tensorflow.keras.losses import SparseCategoricalCrossentropy
-from official.nlp import optimization
+# from official.nlp import optimization
 
 
 from neurallog.models import NeuralLog
@@ -29,6 +29,7 @@ from tensorflow.keras.optimizers import Adam
 
 embed_dim = 768  # Embedding size for each token
 max_len = 75
+# max_len = 50
 
 class BatchGenerator(Sequence):
 
@@ -146,7 +147,7 @@ def train_generator_2(training_generator, validate_generator, num_train_samples,
     # 如果有预训练的权重，可以取消注释下面的代码加载它们
     # model.load_weights("hdfs_transformer.hdf5")
 
-    model.compile(loss=loss_object, metrics=['accuracy'], optimizer=optimizer)
+    model.compile(loss=loss_object, metrics=['accuracy'], optimizer=optimizer, run_eagerly=True)
 
     print(model.summary())
 
@@ -213,13 +214,25 @@ def test_model(model, x, y, batch_size):
     print(report)
 
 
+
+def get_file_name(path):
+    base_name = os.path.basename(path)
+    file_name, _ = os.path.splitext(base_name)
+    return file_name
+
 if __name__ == '__main__':
-    log_file = "../logs/BGL.log"
+    # log_file = "../logs/BGL-small.log"
+    # log_file = "../logs/BGL-small.log"
+    # log_file = "../logs/Spirit1G.log"
+    log_file = "../logs/Spirit-small.log"
     (x_tr, y_tr), (x_te, y_te) = data_loader.load_supercomputers(
         log_file, train_ratio=0.8, windows_size=20,
         step_size=20, e_type='bert', mode='balance')
 
-    epoch = 1
-    batch_size = 32 # 默认256
-    model = train(x_tr, y_tr, epoch, batch_size, "bgl_transformer.hdf5")
+    epoch = 2
+    batch_size = 64 # 默认256
+
+    file_name = get_file_name(log_file)
+
+    model = train(x_tr, y_tr, epoch, batch_size, file_name + "_transformer.hdf5")
     test_model(model, x_te, y_te, batch_size=1024)

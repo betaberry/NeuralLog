@@ -27,7 +27,7 @@ class TransformerBlock(layers.Layer):
         ffn_output = self.dropout2(ffn_output, training=training)
         return self.layernorm2(out1 + ffn_output)
 
-def transformer_classifer(embed_dim, ff_dim, max_len, num_heads, dropout=0.1):
+def neurallog_model(embed_dim, ff_dim, max_len, num_heads, dropout=0.1):
     inputs = layers.Input(shape=(max_len, embed_dim))
     transformer_block = TransformerBlock(embed_dim, num_heads, ff_dim)
     embedding_layer = PositionEmbedding(1024, embed_dim)
